@@ -1,0 +1,10 @@
+*.swp
+node_modules/
+.npm
+logs
+*.log
+npm-debug.log*
+.eslintcache
+package-lock.json
+.vscode/*
+.history/

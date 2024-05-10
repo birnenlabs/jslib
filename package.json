@@ -1,0 +1,19 @@
+{
+  "name": "jslib",
+  "version": "1.0.0",
+  "description": "JS Lib",
+  "devDependencies": {
+    "@types/chrome": "^0.0.260",
+    "@types/node": "^20.11.17",
+    "eslint": "^8.56.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-jsdoc": "^48.0.6",
+    "mathjs": "^11.11.1",
+    "typescript": "^5.3.3",
+  },
+  "scripts": {
+    "eslint": "npx eslint '**/*.*js' --ignore-pattern '**/submodule.chrome-extensions/*'",
+    "eslint-fix": "npx eslint --fix '**/*.*js'  --ignore-pattern '**/submodule.chrome-extensions/*'",
+    "typecheck": "tsc --project jsconfig.json --maxNodeModuleJsDepth 0 --noEmit"
+  },
+}

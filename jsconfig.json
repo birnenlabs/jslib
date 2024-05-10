@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "ESnext",
+    "checkJs": true,
+    "allowJs": true,
+    "noEmit": true,
+    "strictNullChecks": true,
+    "baseUrl": ".",
+  },
+  "exclude": [
+    "node_modules",
+  ]
+}
