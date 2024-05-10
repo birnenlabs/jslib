@@ -9,11 +9,11 @@
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-jsdoc": "^48.0.6",
     "mathjs": "^11.11.1",
-    "typescript": "^5.3.3",
+    "typescript": "^5.3.3"
   },
   "scripts": {
     "eslint": "npx eslint '**/*.*js' --ignore-pattern '**/submodule.chrome-extensions/*'",
     "eslint-fix": "npx eslint --fix '**/*.*js'  --ignore-pattern '**/submodule.chrome-extensions/*'",
     "typecheck": "tsc --project jsconfig.json --maxNodeModuleJsDepth 0 --noEmit"
-  },
+  }
 }
