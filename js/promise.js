@@ -74,3 +74,15 @@ export function promiseLog(log, result) {
   console.log(log);
   return result;
 }
+
+/**
+ * @template R
+ *
+ * @param {string} log
+ * @param {R} result
+ * @return {R}
+ */
+export function promiseLogWithObject(log, result) {
+  console.log(log, result);
+  return result;
+}
