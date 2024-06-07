@@ -43,6 +43,20 @@ export function validateClass(obj, toCheck, optionalKeys = []) {
 }
 
 /**
+ * @param {Object} obj
+ * @param {Object} toStrip
+ * @return {void}
+ */
+export function stripInvalidKeys(obj, toStrip) {
+  const allowedKeys = new Set(Object.keys(obj));
+  for (const key of Object.keys(toStrip)) {
+    if (!allowedKeys.has(key)) {
+      delete toStrip[key];
+    }
+  }
+}
+
+/**
  * @param {string[]} allowedKeys
  * @param {string[]} optionalKeys
  * @return {Set<string>}
