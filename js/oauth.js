@@ -25,7 +25,7 @@ const oauthCodeParam = 'code';
  *   - load the OAuthSettings
  *   - parse the returned oauth code from the url
  *   - request refresh token and save it in OAuthSettings
- *   - close the popup window and reload its parent
+ *   - redirect back to the return url
  *
  * @return {Promise<void>}
  */
@@ -69,11 +69,6 @@ export function processOAuthRedirect() {
       });
 }
 
-export class MissingRefreshTokenError extends Error {
-  constructor() {
-    super('RefreshToken is not found - please complete OAuth flow.');
-  }
-}
 
 /**
  * OAuth class that will take care of the OAuth flow.
@@ -98,7 +93,7 @@ export class OAuth {
    */
   getAccessToken(forceRefresh = false) {
     if (!this.#settings.hasRefreshToken()) {
-      return Promise.reject(new MissingRefreshTokenError());
+      return Promise.reject(new Error('Missing token - Access not granted, please initialise OAuth'));
     }
 
     if (forceRefresh) {
@@ -136,18 +131,6 @@ export class OAuth {
       this.#openOAuthPopup();
     }
     throw new Error(message);
-  }
-
-  /**
-   * Opens the popup window to get code
-   */
-  #openOAuthPopup() {
-    const url = this.#settings.createOAuthUrl();
-    if (url) {
-      window.open(url, 'window', 'toolbar=no, menubar=no, resizable=yes');
-    } else {
-      console.error(`Invalid url. Settings: ${this.#settings}`);
-    }
   }
 }
 
