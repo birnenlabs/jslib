@@ -264,6 +264,13 @@ export class OAuthSettings {
     return this.#data.clientSecret;
   }
 
+ /**
+   * @return {string}
+   */
+  getReturnUrl(url) {
+    return this.#data.url;
+  }
+
   /**
    * @return {boolean}
    */
@@ -335,6 +342,15 @@ export class OAuthSettings {
     this.#data.refreshToken = refreshToken;
   }
 
+  /**
+   * Sets the optional return url. It will be used to redirect
+   * the user back after oAuth flow.
+   *
+   * @param {string} url
+   */
+  setReturnUrl(url) {
+    this.#data.url = url;
+  }
 
   /**
    * @return {boolean}
