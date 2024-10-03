@@ -1,4 +1,4 @@
-import {checkNonUndefined} from '/jslib/js/preconditions.js';
+import {checkNonUndefined} from './preconditions.js';
 
 // Some time in year 2096
 export const EPOCH_FUTURE = 4000000000;

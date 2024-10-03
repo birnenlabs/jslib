@@ -68,6 +68,12 @@ export function processOAuthRedirect() {
       });
 }
 
+export class MissingRefreshTokenError extends Error {
+  constructor() {
+    super('RefreshToken is not found - please complete OAuth flow.');
+  }
+}
+
 /**
  * OAuth class that will take care of the OAuth flow.
  * If OAuthSettings are properly configured, it will return
@@ -90,17 +96,15 @@ export class OAuth {
    * @return {Promise<string>}
    */
   getAccessToken(forceRefresh = false) {
+    if (!this.#settings.hasRefreshToken()) {
+      return Promise.reject(new MissingRefreshTokenError());
+    }
+
     if (forceRefresh) {
       this.#accessToken = undefined;
     }
     if (this.#accessToken) {
       return Promise.resolve(this.#accessToken);
-    }
-
-    if (!this.#settings.hasRefreshToken()) {
-      this.#openOAuthPopup();
-      // Page will be refreshed and token will be requested again.
-      return Promise.reject(new Error('No refresh token in settings'));
     }
 
     const accessTokenData = this.#settings.createAccessTokenData();
