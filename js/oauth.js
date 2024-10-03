@@ -62,8 +62,9 @@ export function processOAuthRedirect() {
         }
         s.setRefreshToken(json.refresh_token);
         s.save();
-        window.opener.location.reload();
-        window.close();
+        if (s.getReturnUrl()) {
+          window.location.href = s.getReturnUrl();
+        }
         return;
       });
 }
