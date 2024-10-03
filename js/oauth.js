@@ -113,23 +113,19 @@ export class OAuth {
     return fetch(this.#settings.getTokenUrl(), params)
         .then((response) => (response.status == 200) ? response :
            // @ts-ignore
-           /** @type {Response} */(this.#throwError(`Cannot get access token: url: ${this.#settings.getTokenUrl()}, response: ${response.status}`, true)))
+           /** @type {Response} */(this.#throwError(`Cannot get access token: url: ${this.#settings.getTokenUrl()}, response: ${response.status}`)))
         .then((response) => response.json())
-        .then((json) => json.access_token ? (this.#accessToken = json.access_token) : this.#throwError(`AccessToken not found in response: ${json}`, false));
+        .then((json) => json.access_token ? (this.#accessToken = json.access_token) : this.#throwError(`AccessToken not found in response: ${json}`));
   }
 
   /**
    * @param {string} message
-   * @param {boolean} openOAuthPopup
    */
-  #throwError(message, openOAuthPopup) {
+  #throwError(message) {
     console.error(message);
     console.error('Removing RefreshToken.');
     this.#settings.setRefreshToken('');
     this.#settings.save();
-    if (openOAuthPopup) {
-      this.#openOAuthPopup();
-    }
     throw new Error(message);
   }
 }
