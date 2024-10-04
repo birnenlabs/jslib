@@ -244,7 +244,7 @@ export class OAuthSettings {
     return this.#data.clientSecret;
   }
 
- /**
+  /**
    * @return {string}
    */
   getReturnUrl(url) {
