@@ -45,8 +45,8 @@ class BaseEvent {
    * @return {Promise<any>}
    */
   tick() {
-    // Use `Promise.resolve()` to start promise chain even for non promise functions.
-    return Promise.resolve(this.#fn())
+    // Use `new Promise()` to start promise chain even for non promise functions.
+    return new Promise((resolve, reject) => resolve(this.#fn()))
         .catch((e) => {
           // Log and rethrow failed task.
           console.error(`${event} failed`, e);

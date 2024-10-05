@@ -247,7 +247,7 @@ export class OAuthSettings {
   /**
    * @return {string}
    */
-  getReturnUrl(url) {
+  getReturnUrl() {
     return this.#data.url;
   }
 
