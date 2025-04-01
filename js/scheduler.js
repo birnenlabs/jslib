@@ -138,7 +138,7 @@ class ScheduledEvent extends BaseEvent {
     this.#retryDelaySec = Math.min(Math.round(this.#retryDelaySec * 1.659), RETRY_DELAY_MAX_SEC);
     this.#rescheduleCount++;
 
-    console.log(`${this}: created retry #${this.#rescheduleCount}, original next run: ${originalNextRunEpochString}, next retry delay sec: ${this.#retryDelaySec}`);
+    console.log(`Rescheduling: ${super.toString()}: retry #${this.#rescheduleCount}, original next run: ${originalNextRunEpochString}, next retry delay sec: ${this.#retryDelaySec}`);
   }
 
   /**
