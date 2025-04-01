@@ -7,9 +7,16 @@ export const EPOCH_FUTURE = 4000000000;
 const RETRY_DELAY_BASE_SEC = 5;
 
 // Maximum value of retry delay
-const RETRY_DELAY_MAX_SEC = 3600;
+const RETRY_DELAY_MAX_SEC = 900;
 
-/** Base event class */
+/**
+ * Base event class
+ *
+ * This class is not exported, events are created using Event.repeat,
+ * Event.once or Event.at static methods.
+ *
+ * The BaseEvent is used for events that occurs on every tick.
+ */
 class BaseEvent {
   /** @type {function():any} */
   #fn;
@@ -30,7 +37,7 @@ class BaseEvent {
    * @return {string}
    */
   toString() {
-    return `${this.#id}: fn="${this.#fn.name}"`;
+    return `${this.#id}`;
   }
 
   /**
@@ -49,19 +56,31 @@ class BaseEvent {
     return new Promise((resolve, reject) => resolve(this.#fn()))
         .catch((e) => {
           // Log and rethrow failed task.
+          // Child classes will set the next event run in their finally clauses,
+          // Scheduler will reschedule in case of failure
           console.error(`${event} failed`, e);
           throw e;
         });
   }
 }
 
-/** Scheduled event class */
+/**
+ * Scheduled event class
+ *
+ * This class is not exported, events are created using Event.repeat,
+ * Event.once or Event.at static methods.
+ *
+ * The ScheduledEvent has next run time to be invoked by the scheduled.
+ */
 class ScheduledEvent extends BaseEvent {
   /** @type {number} */
   #nextRunEpochSec;
 
   /** @type {number} */
   #retryDelaySec;
+
+  /** @type {number} */
+  #rescheduleCount;
 
   /**
    * @param {string} id
@@ -72,6 +91,7 @@ class ScheduledEvent extends BaseEvent {
     super(id, fn);
     this.#nextRunEpochSec = nextRunEpochSec;
     this.#retryDelaySec = RETRY_DELAY_BASE_SEC;
+    this.#rescheduleCount = 0;
   }
 
   /**
@@ -79,7 +99,7 @@ class ScheduledEvent extends BaseEvent {
    */
   toString() {
     // Using sv (Sweden) as it uses iso time format
-    return super.toString() + `, scheduled=${this.isScheduled() ? new Date(this.#nextRunEpochSec * 1000).toLocaleString('sv') : 'never'}`;
+    return super.toString() + `: scheduled=${this.#nextRunEpochString()}`;
   }
 
   /**
@@ -96,9 +116,17 @@ class ScheduledEvent extends BaseEvent {
     return this.#nextRunEpochSec;
   }
 
+  /**
+   * @return {string}
+   */
+  #nextRunEpochString() {
+    return this.isScheduled() ? new Date(this.#nextRunEpochSec * 1000).toLocaleString('sv') : 'never';
+  }
+
   /** Will overwrite #nextRunEpochSec to retry the task in #retryDelaySec seconds or earlier */
   scheduleForRetry() {
     const retryRunEpochSec = getNowSec() + this.#retryDelaySec;
+    const originalNextRunEpochString = this.#nextRunEpochString();
     if (this.isScheduled()) {
       // Reschedule scheduled event only when retry is earlier than expected run.
       this.setNextRunEpochSec(Math.min(retryRunEpochSec, this.nextRunEpochSec()));
@@ -106,8 +134,11 @@ class ScheduledEvent extends BaseEvent {
       this.setNextRunEpochSec(retryRunEpochSec);
     }
 
-    this.#retryDelaySec = Math.min(this.#retryDelaySec * 2, RETRY_DELAY_MAX_SEC);
-    console.log(`${this}: rescheduled`);
+    // Using 1.659 as multiplier because it produces nice numbers: 5, 8, 13, 22, 36, 60, 100...
+    this.#retryDelaySec = Math.min(Math.round(this.#retryDelaySec * 1.659), RETRY_DELAY_MAX_SEC);
+    this.#rescheduleCount++;
+
+    console.log(`${this}: created retry #${this.#rescheduleCount}, original next run: ${originalNextRunEpochString}, next retry delay sec: ${this.#retryDelaySec}`);
   }
 
   /**
@@ -126,7 +157,9 @@ class ScheduledEvent extends BaseEvent {
     return super.tick()
         // Reset retry timer on success
         .then(() => this.#retryDelaySec = RETRY_DELAY_BASE_SEC)
-        // Always set next run
+        // Reset reschedule count on success
+        .then(() => this.#rescheduleCount = 0)
+        // Always set next run (RepeatableEvent will overwrite it in its finally clause)
         .finally(() => this.setNextRunEpochSec(-1));
   }
 
@@ -140,7 +173,15 @@ class ScheduledEvent extends BaseEvent {
   }
 }
 
-/** Repeatable event class */
+/**
+ * Repeatable event class
+ *
+ * This class is not exported, events are created using Event.repeat,
+ * Event.once or Event.at static methods.
+ *
+ * The RepeatableEvent is a special case of the ScheduledEvent, that will
+ * reschedule itself after the completion.
+ */
 class RepeatableEvent extends ScheduledEvent {
   /** @type {number} */
   #intervalSec;
